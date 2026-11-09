@@ -192,3 +192,63 @@ print(table(
   Actual = labels[as.character(train_clean$Survived)],
   Predicted = labels[as.character(train_predictions)]
 ))
+
+# ---------------------------------------------------------------------------
+# Step 6: Load and clean the test data, then predict
+# ---------------------------------------------------------------------------
+print_header("STEP 6: Load the test data and make predictions")
+
+check_file(test_path)
+
+test <- read.csv(test_path, na.strings = c("", "NA"))
+cat("Loaded", test_path, "\n")
+cat("Shape:", nrow(test), "rows x", ncol(test), "columns\n")
+cat("'Survived' column present:", "Survived" %in% names(test), "\n")
+
+cat("\nMissing values in the test data:\n")
+test_missing <- colSums(is.na(test))
+print(test_missing[test_missing > 0])
+
+cat("\nCleaning the test data with the SAME steps and training fill values:\n")
+test_clean <- prepare_data(test, fill_values)
+
+cat("\nCleaned test data:", nrow(test_clean), "rows x", ncol(test_clean), "columns\n")
+cat("Missing values remaining:", sum(is.na(test_clean)), "\n")
+cat("Columns match the training features:", identical(names(test_clean), FEATURES), "\n")
+
+test_probabilities <- predict(model, newdata = test_clean, type = "response")
+test_predictions <- as.integer(test_probabilities >= 0.5)
+cat("\nPredicted survival for", length(test_predictions), "test passengers\n")
+
+# ---------------------------------------------------------------------------
+# Step 7: Print the test set predictions
+# ---------------------------------------------------------------------------
+# test.csv has no Survived column, so test accuracy cannot be measured.
+# Per the course instructions, the predictions are printed instead.
+print_header("STEP 7: Test set predictions")
+
+predictions <- data.frame(
+  PassengerId = test$PassengerId,
+  Survived = test_predictions
+)
+
+n_survived <- sum(predictions$Survived)
+n_total <- nrow(predictions)
+cat("\nSummary:\n")
+cat(sprintf("  Predicted survived: %d of %d (%.1f%%)\n",
+            n_survived, n_total, n_survived / n_total * 100))
+cat(sprintf("  Predicted died:     %d of %d (%.1f%%)\n",
+            n_total - n_survived, n_total, (n_total - n_survived) / n_total * 100))
+
+cat("\nPredicted survival rate by sex (test set):\n")
+predictions %>%
+  mutate(Sex = test$Sex) %>%
+  group_by(Sex) %>%
+  summarise(predicted_survival_rate = round(mean(Survived), 3)) %>%
+  as.data.frame() %>%
+  print()
+
+cat("\nAll predictions (1 = survived, 0 = died):\n")
+print(predictions, row.names = FALSE)
+
+print_header("Done.")
