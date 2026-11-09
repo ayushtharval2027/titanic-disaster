@@ -1,0 +1,18 @@
+# ----- Data: never commit the dataset -----
+src/data/
+
+# ----- OS hidden files -----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- Python -----
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# ----- R -----
+.Rhistory
+.RData
+.Rproj.user/
