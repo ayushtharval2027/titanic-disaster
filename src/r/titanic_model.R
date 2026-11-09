@@ -166,3 +166,29 @@ coef_table <- data.frame(
 coef_table <- coef_table[order(-coef_table$coefficient), ]
 cat("Coefficients (positive = higher chance of survival):\n")
 print(coef_table, row.names = FALSE)
+
+# ---------------------------------------------------------------------------
+# Step 5: Measure accuracy on the training set
+# ---------------------------------------------------------------------------
+print_header("STEP 5: Measure accuracy on the training set")
+
+# type = "response" returns probabilities (0 to 1), not log-odds
+train_probabilities <- predict(model, newdata = train_clean, type = "response")
+train_predictions <- as.integer(train_probabilities >= 0.5)
+
+n_correct <- sum(train_predictions == train_clean$Survived)
+train_accuracy <- mean(train_predictions == train_clean$Survived)
+baseline_accuracy <- 1 - mean(train_clean$Survived)
+
+cat(sprintf("\nTraining accuracy: %.2f%%\n", train_accuracy * 100))
+cat(sprintf("  (%d of %d passengers predicted correctly)\n", n_correct, nrow(train_clean)))
+cat(sprintf("Baseline accuracy (predict everyone died): %.2f%%\n", baseline_accuracy * 100))
+cat(sprintf("Improvement over baseline: %+.2f percentage points\n",
+            (train_accuracy - baseline_accuracy) * 100))
+
+labels <- c("0" = "Died", "1" = "Survived")
+cat("\nPredicted vs. actual outcomes on the training set:\n")
+print(table(
+  Actual = labels[as.character(train_clean$Survived)],
+  Predicted = labels[as.character(train_predictions)]
+))
