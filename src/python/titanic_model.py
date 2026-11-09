@@ -133,7 +133,6 @@ print(f"Missing values remaining: {train_clean.isna().sum().sum()}")
 print("\nFirst 5 rows after cleaning:")
 print(train_clean.head())
 
-
 # ---------------------------------------------------------------------------
 # Step 4: Train a logistic regression model
 # ---------------------------------------------------------------------------
@@ -157,3 +156,27 @@ coefficients = pd.DataFrame({
 print(f"\nIntercept: {model.intercept_[0]:.4f}")
 print("Coefficients (positive = higher chance of survival):")
 print(coefficients.to_string(index=False))
+
+# ---------------------------------------------------------------------------
+# Step 5: Measure accuracy on the training set
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 5: Measure accuracy on the training set")
+print("=" * 70)
+
+train_predictions = model.predict(X_train)
+train_accuracy = accuracy_score(y_train, train_predictions)
+baseline_accuracy = 1 - y_train.mean()
+
+print(f"\nTraining accuracy: {train_accuracy:.2%}")
+print(f"  ({(train_predictions == y_train).sum()} of {len(y_train)} passengers predicted correctly)")
+print(f"Baseline accuracy (predict everyone died): {baseline_accuracy:.2%}")
+print(f"Improvement over baseline: {(train_accuracy - baseline_accuracy) * 100:+.2f} percentage points")
+
+labels = {0: "Died", 1: "Survived"}
+results = pd.DataFrame({
+    "Actual": y_train.map(labels),
+    "Predicted": pd.Series(train_predictions, index=y_train.index).map(labels),
+})
+print("\nPredicted vs. actual outcomes on the training set:")
+print(pd.crosstab(results["Actual"], results["Predicted"]))
