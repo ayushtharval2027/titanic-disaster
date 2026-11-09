@@ -214,3 +214,33 @@ print(f"Columns match the training features: {list(test_clean.columns) == FEATUR
 X_test = test_clean[FEATURES]
 test_predictions = model.predict(X_test)
 print(f"\nPredicted survival for {len(test_predictions)} test passengers")
+
+# ---------------------------------------------------------------------------
+# Step 7: Print the test set predictions
+# ---------------------------------------------------------------------------
+# test.csv has no Survived column, so test accuracy cannot be measured.
+# Per the course instructions, the predictions are printed instead.
+print("\n" + "=" * 70)
+print("STEP 7: Test set predictions")
+print("=" * 70)
+
+predictions = pd.DataFrame({
+    "PassengerId": test["PassengerId"],
+    "Survived": test_predictions,
+})
+
+n_survived = predictions["Survived"].sum()
+n_total = len(predictions)
+print("\nSummary:")
+print(f"  Predicted survived: {n_survived} of {n_total} ({n_survived / n_total:.1%})")
+print(f"  Predicted died:     {n_total - n_survived} of {n_total} ({(n_total - n_survived) / n_total:.1%})")
+
+print("\nPredicted survival rate by sex (test set):")
+print(predictions["Survived"].groupby(test["Sex"]).mean().round(3))
+
+print("\nAll predictions (1 = survived, 0 = died):")
+print(predictions.to_string(index=False))
+
+print("\n" + "=" * 70)
+print("Done.")
+print("=" * 70)
