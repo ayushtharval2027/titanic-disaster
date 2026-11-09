@@ -180,3 +180,37 @@ results = pd.DataFrame({
 })
 print("\nPredicted vs. actual outcomes on the training set:")
 print(pd.crosstab(results["Actual"], results["Predicted"]))
+
+# ---------------------------------------------------------------------------
+# Step 6: Load and clean the test data, then predict
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 6: Load the test data and make predictions")
+print("=" * 70)
+
+if not TEST_PATH.exists():
+    sys.exit(
+        f"ERROR: Could not find {TEST_PATH}\n"
+        "Download train.csv and test.csv from Kaggle and place them in src/data/ "
+        "(see README for instructions)."
+    )
+
+test = pd.read_csv(TEST_PATH)
+print(f"Loaded {TEST_PATH}")
+print(f"Shape: {test.shape[0]} rows x {test.shape[1]} columns")
+print(f"'Survived' column present: {'Survived' in test.columns}")
+
+print("\nMissing values in the test data:")
+test_missing = test.isna().sum()
+print(test_missing[test_missing > 0])
+
+print("\nCleaning the test data with the SAME steps and training fill values:")
+test_clean = prepare_data(test, fill_values)
+
+print(f"\nCleaned test data: {test_clean.shape[0]} rows x {test_clean.shape[1]} columns")
+print(f"Missing values remaining: {test_clean.isna().sum().sum()}")
+print(f"Columns match the training features: {list(test_clean.columns) == FEATURES}")
+
+X_test = test_clean[FEATURES]
+test_predictions = model.predict(X_test)
+print(f"\nPredicted survival for {len(test_predictions)} test passengers")
