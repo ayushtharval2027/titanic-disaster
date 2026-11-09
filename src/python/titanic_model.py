@@ -132,3 +132,28 @@ print(f"\nCleaned training data: {train_clean.shape[0]} rows x {train_clean.shap
 print(f"Missing values remaining: {train_clean.isna().sum().sum()}")
 print("\nFirst 5 rows after cleaning:")
 print(train_clean.head())
+
+
+# ---------------------------------------------------------------------------
+# Step 4: Train a logistic regression model
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 4: Train a logistic regression model")
+print("=" * 70)
+
+X_train = train_clean[FEATURES]
+y_train = train_clean["Survived"]
+print(f"\nFeatures (X): {FEATURES}")
+print(f"Target (y): Survived  ->  {X_train.shape[0]} passengers")
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+print(f"\nModel trained (converged in {model.n_iter_[0]} iterations)")
+
+coefficients = pd.DataFrame({
+    "feature": FEATURES,
+    "coefficient": model.coef_[0].round(4),
+}).sort_values("coefficient", ascending=False)
+print(f"\nIntercept: {model.intercept_[0]:.4f}")
+print("Coefficients (positive = higher chance of survival):")
+print(coefficients.to_string(index=False))
