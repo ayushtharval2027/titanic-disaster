@@ -142,3 +142,27 @@ cat("\nCleaned training data:", nrow(train_clean), "rows x", ncol(train_clean), 
 cat("Missing values remaining:", sum(is.na(train_clean)), "\n")
 cat("\nFirst 5 rows after cleaning:\n")
 print(head(train_clean, 5))
+
+# ---------------------------------------------------------------------------
+# Step 4: Train a logistic regression model
+# ---------------------------------------------------------------------------
+print_header("STEP 4: Train a logistic regression model")
+
+# Build the model formula from the feature list: Survived ~ Pclass + Sex + ...
+formula_text <- paste("Survived ~", paste(FEATURES, collapse = " + "))
+cat("\nFeatures (X):", paste(FEATURES, collapse = ", "), "\n")
+cat("Target (y): Survived  -> ", nrow(train_clean), "passengers\n")
+cat("Model formula:", formula_text, "\n")
+
+model <- glm(as.formula(formula_text), data = train_clean, family = binomial)
+cat("\nModel trained (converged:", model$converged, "in", model$iter, "iterations)\n")
+
+coefficients <- coef(model)
+cat(sprintf("\nIntercept: %.4f\n", coefficients[["(Intercept)"]]))
+coef_table <- data.frame(
+  feature = FEATURES,
+  coefficient = round(coefficients[FEATURES], 4)
+)
+coef_table <- coef_table[order(-coef_table$coefficient), ]
+cat("Coefficients (positive = higher chance of survival):\n")
+print(coef_table, row.names = FALSE)
