@@ -11,5 +11,8 @@ RUN Rscript install_packages.R
 # Copy the script in after packages
 COPY titanic_model.R .
 
+# Tell the script where the data is mounted (see docker run -v)
+ENV DATA_DIR=/data
+
 # Run the script when the container starts
 CMD ["Rscript", "titanic_model.R"]
